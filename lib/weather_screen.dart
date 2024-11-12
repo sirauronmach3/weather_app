@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:weather_app/additional_info_item.dart';
 import 'package:weather_app/hourly_forcast_item.dart';
 import 'package:weather_app/secrets.dart';
@@ -93,6 +94,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return icon;
   }
 
+  String _getTimeFromDTxt(String stringTime) {
+    final time = DateTime.parse(stringTime);
+    final timeString = DateFormat.Hm().format(time);
+    String result = timeString;
+
+    return result;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -112,7 +121,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
               child: const Icon(Icons.refresh),
               onTap: () {
                 setState(() {});
-                ;
               },
             ),
           ]),
@@ -210,18 +218,26 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   //     ],
                   //   ),
                   // ),
-                  ListView.builder(
-                    itemCount: (data['cnt'] - 1),
-                    itemBuilder: (context, index) {
-                      final hourlyForecast = data['list'][index + 1];
-                      HourlyForcastItem(
-                        icon:
-                            _getWeatherIcon(hourlyForecast['weather'][0]['id']),
-                        temp:
-                            (hourlyForecast['main']['temp']).toStringAsFixed(1),
-                        time: (hourlyForecast['dt']).toString(),
-                      );
-                    },
+                  SizedBox(
+                    height: 120,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 5,
+                      itemBuilder: (context, index) {
+                        final hourlyForecast = data['list'][index + 1];
+                        final hourlySky =
+                            _getWeatherIcon(hourlyForecast['weather'][0]['id']);
+                        final hourlyTemp =
+                            (hourlyForecast['main']['temp']).toStringAsFixed(1);
+                        final hourlyTime =
+                            _getTimeFromDTxt(hourlyForecast['dt_txt']);
+                        return HourlyForcastItem(
+                          icon: hourlySky,
+                          temp: hourlyTemp,
+                          time: hourlyTime,
+                        );
+                      },
+                    ),
                   ),
                   const SizedBox(height: 20),
                   // Additional Information title
